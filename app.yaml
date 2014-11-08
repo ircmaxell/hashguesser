@@ -1,0 +1,22 @@
+application: hashguesser 
+version: 1
+runtime: php
+api_version: 1
+handlers: 
+ - url: /js
+   static_dir: static/js
+ - url: /css
+   static_dir: static/css
+ - url: /
+   static_files: static/index.html
+   upload: static/index.html
+ - url: /results
+   static_files: static/results
+   upload: static/results
+   mime_type: application/json
+ - url: /rawdata
+   script: src/rawdata.php
+ - url: /src/hashes.php
+   static_files: static/hash.php
+   upload: static/hash.php
+   mime_type: text/plain

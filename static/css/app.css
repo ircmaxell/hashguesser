@@ -1,0 +1,71 @@
+input.ng-invalid {
+    border: 2px solid #FF0000;
+}
+
+input.ng-valid {
+    border: 2px solid #009933;
+}
+
+input {
+    width: 45em;
+    padding: .5em;
+    font-size: 1.1em;
+    font-weight: bold;
+}
+
+.hash-challenge {
+    border: 1px solid black;
+    padding: 5px;
+}
+
+table {
+    border: 1px solid black;
+    border-spacing: 0px;
+    margin-bottom: .6em;
+}
+
+td {
+    padding: .5em;
+    font-family: monospace;
+}
+
+th {
+    padding: 1em;
+}
+
+td, th {
+    border: 1px solid black;
+}
+
+header {
+    font-size: 1.6em;
+    font-weight: bolder;
+    padding-bottom: .3em;
+}
+
+.entry {
+    border: 1px solid black;
+    padding-left: .5em;
+    margin: .1em;
+    border-radius: .5em;
+}
+
+.entry p, .hint p {
+    border-top: 1px solid black;
+    padding-top: .4em;
+}
+
+.hint {
+    border: 1px solid black;
+    padding-left: .5em;
+    margin: .1em;
+    border-radius: .5em;
+    background-color: #FFCCCC;
+}
+
+.hint h2 {
+    font-size: 1.4em;
+    font-weight: bold;
+}
+
+

@@ -1,0 +1,150 @@
+<?
+$hashes = require "src/hashes.php";
+?>
+<html ng-app="hashApp">
+    <head>
+        <title>Hash Guesser</title>
+        <meta charset="UTF-8" />
+        <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.0-beta.2/angular.js"></script>
+        <script src="/js/sjcl.js"></script>
+        <script src="/js/app.js"></script>
+        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
+        <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+        <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="/css/app.css" />
+        
+    </head>
+    <body>
+        <div class="container" role="main">
+        <div class="jumbotron">
+            <h1>Can You Guess The Hash Algorithm?</h1>
+            <p>Many people think that if they implement a "super secret hash function", their password hashes will be more secure. This is a research attempt to try to disprove that.</p>
+            <h2>How This Works</h2>
+            <p>I have created <? echo count($hashes); ?> "secret" algorithms. Ranging from trivial to quite difficult. You have all the data you need, except the algorithm itself (there is no secret key or anything).</p>
+            <p>For each algorithm, I have provided you with 4 password/salt combinations, and the resulting hashes.</p>
+            <h2>Your Mission, Should You Choose To Accept It</h2>
+            <p>Your mission is to try to deduce the algorithm used to produce the hash.</p>
+            <p>To prove that you have the correct algorithm, produce a new hash using the following credentials:</p>
+            <table><tr><th>Password</th><th>Salt</th></tr><tr><td>foo</td><td>barbarbarbarbarbarbarbarbarbarba</td></tr></table>
+            <p>Enter that hash into the "Hash guess" input field. If it is correct, the box will go green, and the result will be logged.</p>
+            <h2>Results</h2>
+            <p>The challenge is over. You can continue to try to guess the algorithms (the JS portion will work), but the results section will be shut down, as the research is concluded. The results below were frozen as soon as someone found all 15 hashes.</p>
+            <table><tr><th>Number Of Correct Algorithms</th><th>Number Of People With At Least That Many Correct</th></tr>
+                <tr><td>1</td><td>245</td></tr>
+                <tr><td>2</td><td>103</td></tr>
+                <tr><td>3</td><td>66</td></tr>
+                <tr><td>4</td><td>36</td></tr>
+                <tr><td>5</td><td>28</td></tr>
+                <tr><td>6</td><td>22</td></tr>
+                <tr><td>7</td><td>14</td></tr>
+                <tr><td>8</td><td>11</td></tr>
+                <tr><td>9</td><td>10</td></tr>
+                <tr><td>10</td><td>9</td></tr>
+                <tr><td>11</td><td>7</td></tr>
+                <tr><td>12</td><td>6</td></tr>
+                <tr><td>13</td><td>4</td></tr>
+                <tr><td>14</td><td>4</td></tr>
+                <tr><td>15</td><td>1</td></tr>
+            </table>
+            <h2>Winners</h2>
+            <p>There are 2 classes of "winners" in this result set. Due to a server-misconfiguration, all 15 algorithms were exposed, leading to the winner of all 15 being the first person to find that misconfiguration. And that person is:</p>
+            <h3 class="bg-success"><a href="https://twitter.com/MaGlNet" target="_blank">Matthias Glaub</a> - First found "misconfiguration" which allowed all 15 hashes to be verified.</h3>
+            <p>The other class of "winners" are those who found 14 algorithms without "tricks". In no particular order:</p>
+            <ul>
+                <li class="bg-success"><h3><a href="https://twitter.com/natmchugh" target="_blank">@natmchugh</a> - Found 14 algorithms</h3></li>
+                <li class="bg-info"><h3><a href="https://twitter.com/JayTaph" target="_blank">Joshua Thijssen</a> - Found 14 algorithms</h3></li>
+                <li class="bg-success"><h3><a href="https://twitter.com/kubabrecka" target="_blank">Kuba Břečka</a> - Found 14 algorithms</h3></li>
+            </ul>
+            <h2>Findings</h2>
+            <p>As it turns out, <a href="http://en.wikipedia.org/wiki/Kerckhoffs's_principle" target="_blank">Kerckhoff's Principle</a> holds true. Every single one of the "secret" hash algorithms, some of which were quite odd, fell. Many hashes fell on the first day. Some took a week. But all fell in one way or another.</p>
+            <p>So next time someone tells you that you should "make it more secure by tweaking the algorithm so they don't know what to expect", show them this site.</p>
+        </div>
+        <div ng-controller="HashListCtrl">
+            <form>
+            <div ng-repeat="hash in hashes" class="hash-challenge jumbotron">
+                <header>Algorithm {{$index + 1}}</header>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Password</th>
+                            <th>Salt</th>
+                            <th>Hash</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="oracle in hash.oracles">
+                            <td>{{oracle.password}}</td>
+                            <td>{{oracle.salt}}</td>
+                            <td>{{oracle.hash}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="hint">
+                    <h2 data-toggle="collapse" href="#hint-{{$index}}">Hint</h2>
+                    <p id="hint-{{$index}}" class="collapse" ng-bind="hash.hint"></p>
+                </div>
+                <div>
+                    <label>Hash guess ({{guesses.stats[$index]}} found): <input type="text" name="guess-{{$index}}" ng-model="guesses.values[$index]" required hash-guess></label>
+                </div>
+            </div>
+            </form>
+            <div class="stats jumbotron">
+                <h1>Stats</h1>
+                <table>
+                    <tr><td>You:</td><td>{{guesses.correct}} / {{guesses.total}}</td></tr>
+                    <tr><td>Best:</td><td>{{guesses.best}} / {{guesses.total}}</td></tr>
+                    <tr><td>Average:</td><td>{{guesses.average}} / {{guesses.total}}</td></tr>
+                    <tr><td>Number Of Users:</td><td>{{guesses.users}}</td></tr>
+                </table>
+            </div>
+        </div>
+        <div id="faq" ng-controller="FaqCtrl">
+            <h1>FAQ</h1>
+            <div class="entry">
+                <h2 data-toggle="collapse" href="#confirming">How Are You Confirming?</h2>
+                <p class="collapse" id="confirming">We are doing a double confirm on the hash. First, we generate the hash (server side, sorry), then we hash it with a public key using sha256 (which is available to JS in the source). Then, we generate a hash with a private key that doesn't leave the server. When you enter a guess, the browser hashes the guess with the public key (seriously, just read the source), and if it matches, considers you to have found the hash. Then, the server re-verifies with the secret key. If both match, it's considered a valid guess and the result is saved.</p>
+            </div>
+            <div class="entry">
+                <h2 data-toggle="collapse" href="#storing">What are you storing with the results?</h2>
+                <p class="collapse" id="storing">Nothing. I generate a unique token which is stored as a cookie for each user. This does nothing but allows me to de-duplicate your submissions. All that's actually saved is a flag indicating which hashes you've successfully found. Nothing else.</p>
+            </div>
+            <div class="entry">
+                <h2 data-toggle="collapse" href="#bother">Why bother?</h2>
+                <p class="collapse" id="bother">Why not?</p>
+            </div>
+            <div class="entry">
+                <h2 data-toggle="collapse" href="#finished">I Finished!!!</h2>
+                <p class="collapse" id="finished">Awesome!!! Send me an email (me - at - ircmaxell - dot - com)  with your id (sid in the cookie), and I'll immortalize you on the page forever (or until I decide to take it down).</p>
+            </div>
+            <div class="entry">
+                <h2 data-toggle="collapse" href="#answers">Where are the answers?!?!?1</h2>
+                <p class="collapse" id="answers">They are not here. Perhaps I will post them one day. Perhaps I may blog about them. But not today :-)</p>
+            </div>
+            <div class="entry">
+                <h2 data-toggle="collapse" href="#hint">Can I have a hint?</h2>
+                <p class="collapse" id="hint">Sure. Why not!</p>
+            </div>
+            <div class="entry">
+                <h2 data-toggle="collapse" href="#why">But seriously, why?</h2>
+                <p class="collapse" id="why">If you *must* know, click <button ng-click="hideSnipe=!hideSnipe">here</button>.<br /><br />
+                    <a href="https://xkcd.com/356/" target="_blank"><img src="http://imgs.xkcd.com/comics/nerd_sniping.png" alt="nerd sniping" title="Nerd Sniping" ng-hide="hideSnipe"></a>
+                </p>
+            </div>
+        </div> 
+        <footer class="jumbotron">
+            Copyright <? echo date("Y"); ?> <a href="http://blog.ircmaxell.com">Anthony Ferrara</a> (<a href="https://twitter.com/ircmaxell">@ircmaxell</a>)
+        </footer>
+        </div>
+        <script>
+          (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+          (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+          })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        
+          ga('create', 'UA-50464880-1', 'hashguesser.appspot.com');
+          ga('send', 'pageview');
+
+        </script>
+    </body>
+</html>
